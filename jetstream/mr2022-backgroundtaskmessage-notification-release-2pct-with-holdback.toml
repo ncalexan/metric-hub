@@ -27,6 +27,8 @@
 
 [experiment]
 
+segments = ["en", "de", "fr", "zhCN", "ru", "esES", "pl", "ptBR", "it", "ja", "other"]
+
 start_date = "2023-01-23"
 end_date = "2023-02-20"
 enrollment_period = 14
@@ -212,3 +214,66 @@ description = """
 [metrics.notification_clicks.statistics.sum]
 # Click through rate.
 [metrics.notification_clicks.statistics.binomial]
+
+[segments]
+
+[segments.en]
+select_expression = "COALESCE(LOGICAL_OR(locale IN ('en-US', 'en-GB', 'en-CA')), FALSE)"
+data_source = "clients_daily"
+
+[segments.de]
+select_expression = "COALESCE(LOGICAL_OR(locale = 'de'), FALSE)"
+data_source = "clients_daily"
+
+[segments.fr]
+select_expression = "COALESCE(LOGICAL_OR(locale = 'fr'), FALSE)"
+data_source = "clients_daily"
+
+[segments.zhCN]
+select_expression = "COALESCE(LOGICAL_OR(locale = 'zh-CN'), FALSE)"
+data_source = "clients_daily"
+
+[segments.ru]
+select_expression = "COALESCE(LOGICAL_OR(locale = 'ru'), FALSE)"
+data_source = "clients_daily"
+
+[segments.esES]
+select_expression = "COALESCE(LOGICAL_OR(locale = 'es-ES'), FALSE)"
+data_source = "clients_daily"
+
+[segments.pl]
+select_expression = "COALESCE(LOGICAL_OR(locale = 'pl'), FALSE)"
+data_source = "clients_daily"
+
+[segments.ptBR]
+select_expression = "COALESCE(LOGICAL_OR(locale = 'pt-BR'), FALSE)"
+data_source = "clients_daily"
+
+[segments.it]
+select_expression = "COALESCE(LOGICAL_OR(locale = 'it'), FALSE)"
+data_source = "clients_daily"
+
+[segments.ja]
+select_expression = "COALESCE(LOGICAL_OR(locale = 'ja'), FALSE)"
+data_source = "clients_daily"
+
+[segments.other]
+select_expression = "COALESCE(LOGICAL_AND(locale NOT IN ('en-US', 'en-GB', 'en-CA', 'de', 'fr', 'zh-CN', 'ru', 'es-ES', 'pl', 'pt-BR', 'it', 'ja')), FALSE)"
+data_source = "clients_daily"
+
+[segments.data_sources.clients_daily]
+from_expression = """(
+  SELECT
+   client_id,
+   last_locale AS locale,
+   submission_date
+  FROM
+    `mozdata.analysis.nalexander_4pct_notification_experiment_tmp_2pct_enrollments_with_locale`
+  CROSS JOIN
+  UNNEST(
+    GENERATE_DATE_ARRAY(
+      DATE('{{experiment.start_date_str}}'),
+      DATE('{{experiment.last_enrollment_date_str}}'),
+      INTERVAL 1 DAY)
+  ) AS submission_date
+)"""
